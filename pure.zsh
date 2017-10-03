@@ -135,6 +135,8 @@ prompt_pure_preprompt_render() {
 
 	# Create the right prompt
 	local right_prompt="%F{green}${prompt_pure_node_version}%f"
+	right_prompt+=" %F{red}${prompt_pure_ruby_version}%f"
+	right_prompt+=" %F{blue}${prompt_pure_python_version}%f"
 	# username and machine if applicable
 	right_prompt+=$prompt_pure_username
 
@@ -326,6 +328,12 @@ prompt_pure_async_tasks() {
 	# fetch the node version asynchronously
 	async_job "prompt_pure" prompt_pure_async_node_version $working_tree
 
+	# fetch the ruby version asynchronously
+	async_job "prompt_pure" prompt_pure_async_ruby_version $working_tree
+
+	# fetch the python version asynchronously
+	async_job "prompt_pure" prompt_pure_async_python_version $working_tree
+
 	# only perform tasks inside git working tree
 	[[ -n $working_tree ]] || return
 
@@ -363,6 +371,30 @@ prompt_pure_async_node_version() {
 	command node --version
 
 	return $?
+}
+
+prompt_pure_async_ruby_version() {
+	local dir=$1
+
+	if [[ -n $dir ]]; then
+		builtin cd -q $dir
+	fi
+
+	command ruby --version | sed -E 's/([^ ]+) ([^ ]+).*/\1 \2/'
+
+	return $1
+}
+
+prompt_pure_async_python_version() {
+	local dir=$1
+
+	if [[ -n $dir ]]; then
+		builtin cd -q $dir
+	fi
+
+	command python --version | sed -E 's/([^ ]+) ([^ ]+).*/\1 \2/'
+
+	return $1
 }
 
 prompt_pure_check_git_arrows() {
@@ -416,7 +448,19 @@ prompt_pure_async_callback() {
 			;;
 		prompt_pure_async_node_version)
 			if [[ -n $output ]]; then
-				prompt_pure_node_version="⬢ ${output}"
+				prompt_pure_node_version="⬢ node ${output}"
+				prompt_pure_preprompt_render
+			fi
+			;;
+		prompt_pure_async_ruby_version)
+			if [[ -n $output ]]; then
+				prompt_pure_ruby_version="⬢ ${output}"
+				prompt_pure_preprompt_render
+			fi
+			;;
+		prompt_pure_async_python_version)
+			if [[ -n $output ]]; then
+				prompt_pure_python_version="⬢ ${output}"
 				prompt_pure_preprompt_render
 			fi
 			;;

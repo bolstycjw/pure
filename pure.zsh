@@ -392,7 +392,7 @@ prompt_pure_async_python_version() {
 		builtin cd -q $dir
 	fi
 
-	command python --version | sed -E 's/([^ ]+) ([^ ]+).*/\1 \2/'
+	command python --version | head -n1 | sed -E 's/([^ ]+) ([^ ]+).*/\1 \2/'
 
 	return $1
 }
